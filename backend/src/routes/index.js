@@ -1,0 +1,33 @@
+import { Router } from 'express';
+import { register, login } from '../controllers/auth.js';
+import { requireAuth, requireRole } from '../utils/auth.js';
+import * as users from '../controllers/users.js';
+import * as dashboard from '../controllers/dashboard.js';
+import * as shipments from '../controllers/shipments.js';
+import * as sensor from '../controllers/sensor.js';
+import * as alerts from '../controllers/alerts.js';
+import * as vehicles from '../controllers/vehicles.js';
+import * as warehouses from '../controllers/warehouses.js';
+const r = Router();
+r.post('/auth/register', register); // public self-registration is Viewer-only
+r.post('/auth/login', login);
+r.get('/dashboard/summary', requireAuth, dashboard.summary);
+r.get('/shipments', requireAuth, shipments.list);
+r.get('/shipments/:id', requireAuth, shipments.getOne);
+r.post('/shipments', requireAuth, requireRole('admin', 'manager'), shipments.create);
+r.post('/sensor/readings', sensor.create); // protected with SENSOR_API_KEY for simulator/device ingestion
+r.get('/sensor/readings', requireAuth, sensor.list);
+r.get('/alerts', requireAuth, alerts.list);
+r.put('/alerts/:id/resolve', requireAuth, requireRole('admin', 'manager', 'operator'), alerts.resolve);
+r.get('/vehicles', requireAuth, vehicles.list);
+r.post('/vehicles', requireAuth, requireRole('admin', 'manager'), vehicles.create);
+r.get('/warehouses', requireAuth, warehouses.list);
+r.post('/warehouses', requireAuth, requireRole('admin', 'manager'), warehouses.create);
+r.patch('/warehouses/:id', requireAuth, requireRole('admin', 'manager'), warehouses.update);
+r.delete('/warehouses/:id', requireAuth, requireRole('admin', 'manager'), warehouses.remove);
+r.get('/admin/users', requireAuth, requireRole('admin'), users.listUsers);
+r.post('/admin/users', requireAuth, requireRole('admin'), users.createUser);
+r.patch('/admin/users/:id', requireAuth, requireRole('admin'), users.updateUser);
+r.put('/admin/users/:id/password', requireAuth, requireRole('admin'), users.resetPassword);
+r.get('/admin/audit-logs', requireAuth, requireRole('admin'), users.listAuditLogs);
+export default r;
