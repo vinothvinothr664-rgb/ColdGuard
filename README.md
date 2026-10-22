@@ -56,6 +56,23 @@ npm run dev
 ```
 Open `http://localhost:5173`.
 
+## Deploy to Render with MongoDB Atlas
+1. Create a MongoDB Atlas cluster. Add a database user, allow network access from Render (or configure Atlas network access for your deployment), and copy the application connection string. Replace its password/database placeholders; never commit it.
+2. Push this repository to GitHub, then in Render choose **New → Blueprint** and select the repository. Render reads `render.yaml` and creates the Express API, Python AI service, and Vite static site.
+3. In the Render Blueprint environment prompts, set:
+   - `MONGO_URI`: your Atlas connection string.
+   - `JWT_SECRET`: a unique random secret of at least 32 characters.
+   - `SENSOR_API_KEY`: a unique random key of at least 16 characters.
+   - `DEMO_PASSWORD`: a unique password of at least 10 characters for accounts seeded on first startup. Existing user passwords are not changed by reseeding.
+   - `CORS_ORIGIN`: the exact deployed frontend origin, for example `https://coldguard-frontend.onrender.com` (no trailing slash).
+   - `AI_SERVICE_URL`: the deployed AI service base URL, for example `https://coldguard-ai.onrender.com` (no trailing slash).
+   - `VITE_API_URL`: the deployed backend URL plus `/api`, for example `https://coldguard-api.onrender.com/api`.
+   If Render assigned different service URLs, use those actual URLs instead of the examples.
+4. Wait for all three deployments to finish. Verify the API at `<backend URL>/health` reports database `connected` and the AI service at `<AI URL>/health` returns `status: ok`.
+5. Open the deployed frontend URL, sign in with an account that exists in the Atlas database, and verify API requests in the browser Network panel.
+
+The API and AI services must be publicly reachable by the browser/backend respectively; do not make Atlas public without appropriate access controls. This setup does not deploy the sensor simulator. Sensor data appears only after a simulator or real device is separately configured to send readings to the deployed API using its `SENSOR_API_KEY`. Accounts from a local database are not automatically copied to Atlas.
+
 ## Demo accounts
 On first backend startup, the application seeds the following accounts if their emails do not already exist. Password is the `DEMO_PASSWORD` value from `backend\.env` (default below):
 
