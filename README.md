@@ -73,6 +73,9 @@ Open `http://localhost:5173`.
 
 The API and AI services must be publicly reachable by the browser/backend respectively; do not make Atlas public without appropriate access controls. This setup does not deploy the sensor simulator. Sensor data appears only after a simulator or real device is separately configured to send readings to the deployed API using its `SENSOR_API_KEY`. Accounts from a local database are not automatically copied to Atlas.
 
+### Deploy the frontend on Vercel
+Import this GitHub repository into Vercel and set the project root directory to `frontend`. Vercel uses the root `vercel.json` rewrite so direct navigation and refreshes on React routes such as `/login` work. Set the `VITE_API_URL` environment variable to the verified Express backend URL ending in `/api`, then redeploy; this variable is embedded at frontend build time. Do not use the AI service URL as the API URL. Confirm the backend URL serves this project's `/api/auth/login` and `/api/shipments` routes before configuring it.
+
 ## Demo accounts
 On first backend startup, the application seeds the following accounts if their emails do not already exist. Password is the `DEMO_PASSWORD` value from `backend\.env` (default below):
 
